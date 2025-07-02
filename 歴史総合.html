@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>歴史総合クイズ：イギリス革命〜ナポレオン</title>
+  <style>
+    body {
+      font-family: 'Yu Gothic', sans-serif;
+      background-color: #f9f9f9;
+      padding: 40px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .quiz-box {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      max-width: 700px;
+      margin: 0 auto 20px;
+    }
+    .question {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .choices label {
+      display: block;
+      margin-bottom: 5px;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      background-color: #004488;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .feedback {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    .result {
+      text-align: center;
+      margin-top: 30px;
+      font-size: 20px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<h1>歴史総合クイズ<br>〜イギリス革命からナポレオン〜</h1>
+
+<div class="quiz-box" id="quiz-box">
+  <div class="question" id="question">問題文がここに入ります</div>
+  <div class="choices" id="choices"></div>
+  <button onclick="submitAnswer()">決定</button>
+  <div class="feedback" id="feedback"></div>
+  <button id="nextBtn" onclick="nextQuestion()" style="display:none">次の問題へ</button>
+</div>
+
+<div class="result" id="result"></div>
+
+<script>
+const quizData = [
+  { question: "クロムウェルが指導した軍を何というか？", choices: ["王室軍", "鉄騎隊（ニューモデル軍）", "国民衛兵", "赤衛軍"], correct: 1 },
+  { question: "アメリカ独立宣言が出されたのは何年か？", choices: ["1773年", "1789年", "1776年", "1804年"], correct: 2 },
+  { question: "名誉革命の結果、制定されたのは何？", choices: ["人民憲章", "人権宣言", "権利章典", "大憲章"], correct: 2 },
+  { question: "ナポレオンが最終的に敗れた戦いは？", choices: ["アウステルリッツの戦い", "ワーテルローの戦い", "ライプツィヒの戦い", "モスクワの戦い"], correct: 1 },
+  { question: "バスティーユ牢獄襲撃は何年？", choices: ["1776年", "1789年", "1793年", "1804年"], correct: 1 },
+  { question: "フランス革命の三つの理念は何か？", choices: ["自由・平等・博愛", "自由・民主・主権", "信仰・独立・平和", "国家・民族・義務"], correct: 0 },
+  { question: "アメリカ独立戦争の発端となった事件は？", choices: ["レキシントンの戦い", "ボストン茶会事件", "バンカーヒルの戦い", "サラトガの戦い"], correct: 1 },
+  { question: "ロベスピエールが率いた派閥は？", choices: ["ジロンド派", "ジャコバン派", "フイヤン派", "立憲君主派"], correct: 1 },
+  { question: "ナポレオン法典が定めた原則は？", choices: ["王権神授説", "契約の自由と所有権の保障", "農民解放", "教会の権力強化"], correct: 1 },
+  { question: "名誉革命の特徴として正しいものは？", choices: ["大規模な内戦", "王政廃止", "流血なしの政権交代", "共和制の成立"], correct: 2 },
+  { question: "権利章典が制定されたのは？", choices: ["1689年", "1776年", "1789年", "1649年"], correct: 0 },
+  { question: "フランス革命前のフランスの政治体制は？", choices: ["立憲君主制", "絶対王政", "共和制", "人民主権制"], correct: 1 },
+  { question: "アメリカ合衆国憲法が採択されたのは？", choices: ["1776年", "1787年", "1791年", "1804年"], correct: 1 },
+  { question: "ナポレオンが皇帝に即位したのは？", choices: ["1799年", "1802年", "1804年", "1812年"], correct: 2 },
+  { question: "アメリカ独立戦争中の重要な勝利である戦いは？", choices: ["バンカーヒル", "サラトガ", "ゲティスバーグ", "トラファルガー"], correct: 1 },
+  { question: "ジャコバン派の政策は？", choices: ["立憲君主制の確立", "恐怖政治の実施", "絶対王政の復活", "議会解散"], correct: 1 },
+  { question: "ナポレオンのロシア遠征の失敗の主な原因は？", choices: ["兵の反乱", "疫病", "冬将軍", "イギリスの援軍"], correct: 2 },
+  { question: "アメリカ独立戦争で独立側を支援した国は？", choices: ["ドイツ", "スペイン", "フランス", "ロシア"], correct: 2 },
+  { question: "ナポレオンが広めた思想として正しいものは？", choices: ["絶対主義", "自由主義と平等", "王権神授説", "農奴制"], correct: 1 },
+  { question: "イギリス革命の際に処刑された王は？", choices: ["チャールズ1世", "ジェームズ2世", "ウィリアム3世", "ジョージ3世"], correct: 0 },
+  { question: "三部会とは？", choices: ["三権分立の制度", "三つの州の代表会議", "聖職者・貴族・平民の会議", "王族・騎士・庶民の会議"], correct: 2 },
+  { question: "アメリカ独立宣言の起草者は？", choices: ["ワシントン", "フランクリン", "ジェファソン", "アダムズ"], correct: 2 },
+  { question: "人間と市民の権利宣言は何の影響を受けたか？", choices: ["ルネサンス", "宗教改革", "啓蒙思想", "ロマン主義"], correct: 2 },
+  { question: "革命政府が設けた恐怖政治の中心機関は？", choices: ["公安委員会", "裁判所", "内務省", "議会"], correct: 0 },
+  { question: "ナポレオンが最初に追放された島は？", choices: ["セントヘレナ島", "コルシカ島", "エルバ島", "バリ島"], correct: 2 },
+  { question: "ワーテルローの戦いの相手は？", choices: ["オーストリア", "プロイセン", "ロシア", "イギリスとプロイセン"], correct: 3 },
+  { question: "バスティーユ牢獄は何の象徴か？", choices: ["王権の正義", "王政の圧政", "人民の自由", "議会政治"], correct: 1 },
+  { question: "ロベスピエールはどうなったか？", choices: ["亡命した", "皇帝になった", "処刑された", "逃亡した"], correct: 2 },
+  { question: "憲法制定国民議会が採択した有名な宣言は？", choices: ["人間と市民の権利宣言", "権利章典", "人民憲章", "ナポレオン法典"], correct: 0 }
+];
+
+let currentQuiz = 0;
+let score = 0;
+
+function loadQuiz() {
+  const q = quizData[currentQuiz];
+  document.getElementById("question").textContent = q.question;
+  const choicesDiv = document.getElementById("choices");
+  choicesDiv.innerHTML = "";
+  document.getElementById("feedback").textContent = "";
+  document.getElementById("nextBtn").style.display = "none";
+  q.choices.forEach((choice, index) => {
+    const label = document.createElement("label");
+    label.innerHTML = `<input type="radio" name="choice" value="${index}"> ${choice}`;
+    choicesDiv.appendChild(label);
+  });
+}
+
+function submitAnswer() {
+  const selected = document.querySelector('input[name="choice"]:checked');
+  if (!selected) {
+    alert("選択肢を選んでください。");
+    return;
+  }
+  const answer = parseInt(selected.value);
+  const correct = quizData[currentQuiz].correct;
+  if (answer === correct) {
+    document.getElementById("feedback").textContent = "正解です！";
+    score++;
+  } else {
+    document.getElementById("feedback").textContent = `不正解です。正解は「${quizData[currentQuiz].choices[correct]}」です。`;
+  }
+  document.getElementById("nextBtn").style.display = "inline-block";
+}
+
+function nextQuestion() {
+  currentQuiz++;
+  if (currentQuiz < quizData.length) {
+    loadQuiz();
+  } else {
+    document.getElementById("quiz-box").style.display = "none";
+    document.getElementById("result").textContent = `全${quizData.length}問中 ${score}問正解でした！`;
+  }
+}
+
+window.onload = loadQuiz;
+</script>
+
+</body>
+</html>
